@@ -5,9 +5,6 @@ require('nvim-tree').setup({
     sort_by = "case_sensitive",
     view = {
         -- adaptive_size = true,
-        mappings = {
-            list = {},
-        },
     },
     renderer = { 
         group_empty = true,
@@ -17,7 +14,11 @@ require('nvim-tree').setup({
             enable = true,
         },
     },
-    filters = { dotfiles = false },
+    filters = { 
+		custom = {'.git'},
+		dotfiles = true, 
+		git_ignored = false,
+	},
     update_focused_file = {
         enable = false,
         update_root = false,
