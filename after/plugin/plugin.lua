@@ -5,8 +5,7 @@ require('nvim-tree').setup({
     sort_by = "case_sensitive",
     view = {
         -- adaptive_size = true,
-    },
-    renderer = { 
+    }, renderer = { 
         group_empty = true,
         highlight_git = true,
         highlight_opened_files = "all",
@@ -50,10 +49,32 @@ local on_attach = function(client, bufnr)
 end
 
 -- Enable servers with the additional capabilities
-local servers = { 'emmet_ls', 'pyright', 'tsserver', 'eslint', 'tailwindcss'}
+local servers = { 'emmet_ls', 'pyright', 'tsserver', 'eslint', 'tailwindcss', 'svelte'}
 for _, lsp in ipairs(servers) do
     lspconfig[lsp].setup { capabilities = capabilities, on_attach = on_attach }
 end
+
+lspconfig.svelte.setup {
+  filetypes = { "svelte" },
+  on_attach = function(client, bufnr)
+    if client.name == 'svelte' then
+      vim.api.nvim_create_autocmd("BufWritePost", {
+        pattern = { "*.js", "*.ts", "*.svelte" },
+        callback = function(ctx)
+          client.notify("$/onDidChangeTsOrJsFile", { uri = ctx.file })
+        end,
+      })
+    end
+    if vim.bo[bufnr].filetype == "svelte" then
+      vim.api.nvim_create_autocmd("BufWritePost", {
+        pattern = { "*.js", "*.ts", "*.svelte" },
+        callback = function(ctx)
+          client.notify("$/onDidChangeTsOrJsFile", { uri = ctx.file })
+        end,
+      })
+    end
+  end
+}
 
 -- luasnip
 local luasnip = require 'luasnip'
