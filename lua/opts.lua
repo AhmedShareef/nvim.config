@@ -17,7 +17,7 @@ opt.fileencoding = 'utf8'        -- str:  File encoding to use
 opt.syntax = "ON"                -- str:  Allow syntax highlighting
 opt.termguicolors = false        -- bool: If term supports ui color then enable
 
-vim.g.tokyonight_style = "night"
+-- vim.g.tokyonight_style = "night"
 --cmd('colorscheme dracula')    -- cmd: Set the colorscheme
 
 -- [[ Search ]]
@@ -37,4 +37,8 @@ opt.splitright = true            -- bool: Place new window to right of current o
 opt.splitbelow = true            -- bool: Place new window below the current one
 
 -- [[ Mouse ]]
-opt.mouse = ""					 -- string: Turn off mouse
+opt.mouse = ""		 -- string: Turn off mouse
+
+opt.clipboard = "unnamedplus"
+
+background = dark

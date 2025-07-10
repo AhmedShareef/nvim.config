@@ -17,6 +17,7 @@ require('nvim-tree').setup({
 		custom = {'.git'},
 		dotfiles = true, 
 		git_ignored = false,
+		exclude = { '.gitignore', '.env' },
 	},
     update_focused_file = {
         enable = false,
@@ -49,7 +50,7 @@ local on_attach = function(client, bufnr)
 end
 
 -- Enable servers with the additional capabilities
-local servers = { 'emmet_ls', 'pyright', 'tsserver', 'eslint', 'tailwindcss', 'svelte'}
+local servers = { 'emmet_ls', 'pyright', 'tsserver', 'eslint', 'tailwindcss', 'svelte', 'gopls', 'rust_analyzer' }
 for _, lsp in ipairs(servers) do
     lspconfig[lsp].setup { capabilities = capabilities, on_attach = on_attach }
 end
@@ -126,7 +127,7 @@ require('lsp_lines').setup {
 }
 
 -- todo comments
-require('todo-comments').setup {}
+-- require('todo-comments').setup {}
 
 -- comment
 require('Comment').setup {}
@@ -139,3 +140,39 @@ require('telescope').load_extension('fzf')
 vim.g.catppuccin_flavour = "mocha" -- latte, frappe, macchiato, mocha
 require("catppuccin").setup()
 vim.cmd [[colorscheme catppuccin]]
+
+local null_ls = require("null-ls")
+
+local group = vim.api.nvim_create_augroup("lsp_format_on_save", { clear = false })
+local event = "BufWritePre" -- or "BufWritePost"
+local async = event == "BufWritePost"
+
+null_ls.setup({
+  on_attach = function(client, bufnr)
+    if client.supports_method("textDocument/formatting") then
+      vim.keymap.set("n", "<Leader>F", function()
+        vim.lsp.buf.format({ bufnr = vim.api.nvim_get_current_buf() })
+      end, { buffer = bufnr, desc = "[lsp] format" })
+
+      -- format on save
+      vim.api.nvim_clear_autocmds({ buffer = bufnr, group = group })
+      vim.api.nvim_create_autocmd(event, {
+        buffer = bufnr,
+        group = group,
+        callback = function()
+          vim.lsp.buf.format({ bufnr = bufnr, async = async })
+        end,
+        desc = "[lsp] format on save",
+      })
+    end
+
+    if client.supports_method("textDocument/rangeFormatting") then
+      vim.keymap.set("x", "<Leader>v", function()
+        vim.lsp.buf.format({ bufnr = vim.api.nvim_get_current_buf() })
+      end, { buffer = bufnr, desc = "[lsp] format" })
+    end
+  end,
+})
+
+local prettier = require('prettier')
+prettier.setup()
